@@ -254,7 +254,8 @@ class SpeedEditor:
 		self.dev.write(struct.pack('<BB', 4, jogleds))
 
 	def set_jog_mode(self, jogmode : SpeedEditorJogMode, unknown=255):
-		self.dev.write(struct.pack('<BBIB', 3, jogmode, 0, unknown))
+		self.dev.write(struct.pack('<BBiB', 3, jogmode, 0, unknown))
+		print("Buffersize:", struct.calcsize('<BBIB'))
 
 	def _parse_report_03(self, report):
 		# Report ID 03
@@ -262,7 +263,7 @@ class SpeedEditor:
 		# u8   - Jog mode
 		# le32 - Jog value (signed)
 		# u8   - Unknown ?
-		rid, jm, jv, ju = struct.unpack('<BBiB', report)
+		rid, jm, jv, ju = struct.unpack_from('<BBiB', report)
 		return self.handler.jog(SpeedEditorJogMode(jm), jv)
 
 	def _parse_report_04(self, report):
@@ -277,7 +278,7 @@ class SpeedEditor:
 		# u8 - Report ID
 		# u8 - Charging (1) / Not-charging (0)
 		# u8 - Battery level (0-100)
-		rid, bs, bl = struct.unpack('<BBB', report)
+		rid, bs, bl = struct.unpack_from('<BBB', report)
 		return self.handler.battery(bool(bs), bl)
 
 	def poll(self, timeout=None):
